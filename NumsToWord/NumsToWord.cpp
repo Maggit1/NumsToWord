@@ -82,9 +82,10 @@ int main() {
 
     // Проверяем, что число в допустимом диапазоне
     if (number < 0 || number > 999999999) {
-        std::cout << "Число вне диапазона!" << std::endl; 
+        std::cout << "Число вне диапазона!" << std::endl;
         return 1; // Завершаем программу с ошибкой
     }
 
     std::cout << num_to_words(number) << std::endl;
-    return 0; 
+    return 0;
+}
