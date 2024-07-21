@@ -2,15 +2,16 @@
 #include <string>
 
 std::string units[] = { "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять" };
+std::string units_thousands[] = { "одна", "две", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять" };
 std::string teens[] = { "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать" };
 std::string tens[] = { "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят", "семьдесят", "восемьдесят", "девяносто" };
 std::string hundreds[] = { "сто", "двести", "триста", "четыреста", "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот" };
 
 // Функция для преобразования числа от 1 до 999 в слова
-std::string convert_number(int n, bool is_million) {
-    if (n == 0) return ""; 
+std::string convert_number(int n, bool is_million, bool is_thousand) {
+    if (n == 0) return "";
 
-    std::string result; 
+    std::string result;
 
     if (n >= 100) {                      //преобразование сотней
         result += hundreds[n / 100 - 1]; // добавляем слово для сотен
@@ -18,19 +19,23 @@ std::string convert_number(int n, bool is_million) {
         if (n > 0) result += " ";        // добавляем пробел, если есть остаток
     }
 
-    if (n >= 20) {  // преобразуем 10-19
-        result += tens[n / 10 - 2]; 
-        n %= 10;                    
-        if (n > 0) result += " ";   
+    if (n >= 20) {  // преобразуем 20-99
+        result += tens[n / 10 - 2];
+        n %= 10;
+        if (n > 0) result += " ";
     }
-    else if (n >= 10) {
-        result += teens[n - 10];   
-        n = 0;                     
+    else if (n >= 10) { // преобразуем 10-19
+        result += teens[n - 10];
+        n = 0;
     }
-    
+
     if (n > 0) {    // преобразуем единицы
-        if (!result.empty()) result += " "; // добавляем пробел, если результат не пустой
-        result += units[n - 1];             
+        if (is_thousand) {
+            result += units_thousands[n - 1]; // используем женский род для тысяч
+        }
+        else {
+            result += units[n - 1]; // используем мужской род для остальных
+        }
     }
 
     if (is_million) {   // добавляем правильный суффикс в зависимости от миллиона или тысячи
@@ -38,7 +43,7 @@ std::string convert_number(int n, bool is_million) {
         else if (n >= 2 && n <= 4) result += " миллиона"; // для 2-4 миллионов
         else result += " миллионов";                      // для остальных случаев
     }
-    else {
+    else if (is_thousand) {
         if (n == 1) result += " тысяча"; // для 1 тысячи
         else if (n >= 2 && n <= 4) result += " тысячи"; // для 2-4 тысяч
         else result += " тысяч"; // для остальных случаев
@@ -49,34 +54,34 @@ std::string convert_number(int n, bool is_million) {
 
 // функция для проверки и разбиения числа
 std::string num_to_words(int n) {
-    if (n == 0) return "ноль"; 
+    if (n == 0) return "ноль";
     std::string result;
-    
+
     if (n >= 1000000) {                                    // преобразуем миллионы, если они есть
-        result += convert_number(n / 1000000, true) + " "; // добавляем миллионы и пробел
+        result += convert_number(n / 1000000, true, false) + " "; // добавляем миллионы и пробел
         n %= 1000000;
     }
 
     if (n >= 1000) {                                     // преобразуем тысячи, если они есть
-        result += convert_number(n / 1000, false) + " "; // добавляем тысячи и пробел
+        result += convert_number(n / 1000, false, true) + " "; // добавляем тысячи и пробел
         n %= 1000;
     }
 
-    if (n > 0) result += convert_number(n, false);      // преобразуем оставшуюся часть числа
+    if (n > 0) result += convert_number(n, false, false);      // преобразуем оставшуюся часть числа
 
-    return result; // Возвращаем итоговый результат
+    return result; // возвращаем итоговый результат
 }
 
 int main() {
-    std::setlocale(LC_ALL, "RU"); 
-    int number; 
-    std::cout << "Введите число до 999999999: "; 
-    std::cin >> number; 
+    std::setlocale(LC_ALL, "RU");
+    int number;
+    std::cout << "Введите число до 999999999: ";
+    std::cin >> number;
 
     // проверяем, что число в допустимом диапазоне
     if (number < 0 || number > 999999999) {
         std::cout << "Число вне диапазона!" << std::endl;
-        return 1; // Завершаем программу с ошибкой
+        return 1; // завершаем программу с ошибкой
     }
 
     std::cout << num_to_words(number) << std::endl;
